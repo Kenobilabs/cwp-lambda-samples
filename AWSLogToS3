@@ -1,0 +1,15 @@
+#Lambda function to push a CWP event from a CloudWatch log to a S3 bucket.
+#For more information on how to publish CWP events to a CloudWatch log refer to: https://help.symantec.com/cs/SCWP/SCWP/v121163689_v111037498/Publishing-Cloud-Workload-Protection-events-to-AWS-CloudWatch?locale=EN_US
+#Setup a 'CloudWatch' trigger for this function with the CloudWatch Log where CWP Events are published to
+import boto3
+from datetime import datetime
+import uuid
+
+def lambda_handler(event, context):
+    jsonCWPEvent = event
+    #Generate a GUID and use that to give the S3 object a unique key name
+    filename = 'cwpevents/' + str(uuid.uuid4()) + '.json'
+    context.log(filename)
+    #print(jsonCWPEvent)
+    client = boto3.client('s3')
+    client.put_object(Body=str(jsonCWPEvent), Bucket='cwpevents', Key=filename)
